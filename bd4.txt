@@ -1,0 +1,105 @@
+create procedure Kurort_Dynamic (d_year integer) 
+returns(
+kurort_id integer, 
+the_total_vouchers_I integer, 
+temp_rosta_I float, 
+the_total_vouchers_II integer, 
+temp_rosta_II float, 
+the_total_vouchers_III integer, 
+temp_rosta_III float, 
+the_total_vouchers_IV integer, 
+temp_rosta_IV float
+) as
+declare variable tourID integer;
+declare variable kol_buy_this_year_I integer; 
+declare variable kol_buy_last_year_I integer;
+declare variable kol_buy_this_year_II integer; 
+declare variable kol_buy_last_year_II integer; 
+declare variable kol_buy_this_year_III integer; 
+declare variable kol_buy_last_year_III integer; 
+declare variable kol_buy_this_year_IV integer; 
+declare variable kol_buy_last_year_IV integer; 
+declare variable buy_date date;
+begin
+for select kurort_id from kurort order by kurort_id into :kurort_id do begin
+kol_buy_this_year_I=0; 
+kol_buy_last_year_I=0; 
+kol_buy_this_year_II=0; 
+kol_buy_last_year_II=0; 
+kol_buy_this_year_III=0; 
+kol_buy_last_year_III=0; 
+kol_buy_this_year_IV=0; 
+kol_buy_last_year_IV=0;
+for select id from tour where(id_kurort=:kurort_id) order by id into :tourID
+do
+begin
+for select start_time from trip
+where (id_tour=:tourID)and((extract(year from start_time)=:d_year)or(extract(year from start_time)=:d_year-1))
+into :buy_date do
+if (extract(year from buy_date)=:d_year) then begin
+if ((extract(month from buy_date)>=1)and(extract(month from buy_date)<=3))
+then
+begin kol_buy_this_year_I=kol_buy_this_year_I+1;
+end
+if ((extract(month from buy_date)>=4)and(extract(month from buy_date)<=6))
+then
+begin kol_buy_this_year_II=kol_buy_this_year_II+1;
+end
+if ((extract(month from buy_date)>=7)and(extract(month from buy_date)<=9))
+then
+begin kol_buy_this_year_III=kol_buy_this_year_III+1;
+end
+if ((extract(month from buy_date)>=10)and(extract(month from buy_date)<=12)) then
+begin kol_buy_this_year_IV=kol_buy_this_year_IV+1;
+end end else begin
+if ((extract(month from buy_date)>=1)and(extract(month from buy_date)<=3))
+then
+begin kol_buy_last_year_I=kol_buy_last_year_I+1;
+end
+if ((extract(month from buy_date)>=4)and(extract(month from buy_date)<=6))
+then
+begin kol_buy_last_year_II=kol_buy_last_year_II+1;
+end
+if ((extract(month from buy_date)>=7)and(extract(month from buy_date)<=9))
+then
+begin kol_buy_last_year_III=kol_buy_last_year_III+1;
+end
+if ((extract(month from buy_date)>=10)and(extract(month from buy_date)<=12)) then
+begin kol_buy_last_year_IV=kol_buy_last_year_IV+1;
+end 
+end
+end
+the_total_vouchers_I=kol_buy_this_year_I; 
+the_total_vouchers_II=kol_buy_this_year_II; 
+the_total_vouchers_III=kol_buy_this_year_III; 
+the_total_vouchers_IV=kol_buy_this_year_IV; 
+if(kol_buy_last_year_I<>0) then
+begin temp_rosta_I=kol_buy_this_year_I/kol_buy_last_year_I;
+end else begin
+temp_rosta_I=NULL; end
+if(kol_buy_last_year_II<>0) then begin
+temp_rosta_II=kol_buy_this_year_II/kol_buy_last_year_II; end
+else begin
+temp_rosta_II=NULL; end
+
+if(kol_buy_last_year_III<>0) then begin
+
+temp_rosta_III=kol_buy_this_year_III/kol_buy_last_year_III; end
+
+else begin
+
+temp_rosta_III=NULL; end
+
+if(kol_buy_last_year_IV<>0) then begin
+
+temp_rosta_IV=kol_buy_this_year_IV/kol_buy_last_year_IV; end
+else begin
+
+temp_rosta_IV=NULL; 
+end
+
+suspend; 
+end
+end
+
+

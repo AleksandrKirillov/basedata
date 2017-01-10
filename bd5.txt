@@ -1,0 +1,45 @@
+create generator create_id; 
+set generator create_id to 15;
+
+create trigger auto_create_id for hotel before insert as
+
+begin new.id=gen_id(create_id, 1);
+end
+
+create exception error_type 'Error. Cant delete or update in table type'; 
+create trigger control_type for type before delete or update
+as begin
+if(old.id in (select type_id from place_of_interest)) 
+then exception error_type;
+end
+
+
+create exception Error_buy 
+'Error. You can not buy more than two passes.'; 
+create trigger control_buy for trip before insert
+as 
+declare variable tor integer;
+begin
+tor<>-1
+select id_tour from trip
+where(id_tour=new.id_tour)and(id_client=new.id_client) into: tor;
+if(tor=-1) then
+exception Error_buy;
+end
+
+
+
+create trigger auto_insurance for trip before insert
+ACTIVE BEFORE INSERT POSITION 0
+AS
+declare variable ins_id integer;
+begin
+  /* Trigger text */
+  ins_id = GEN_ID(id_insurance, 1);
+  NEW.id_insurance = :inc_id;
+end^
+SET TERM ; ^
+
+
+create generator id_insurance; 
+set generator id_insurance to 1;
