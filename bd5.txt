@@ -29,22 +29,16 @@ end
 
 
 
-CREATE OR ALTER TRIGGER AUTO_INSURANCE FOR TRIP before insert
+CREATE OR ALTER TRIGGER AUTOINSURANCE FOR TRIP
+ACTIVE BEFORE INSERT POSITION 0
 as
-declare variable ins_id integer;
+declare variable insurance_id integer;
 begin
-  /* Trigger text */
 
-  if(gen_id(id_insurance,0) > 1) then begin
- ins_id =gen_id(id_insurance,-gen_id(id_insurance,1));
-          ins_id = GEN_ID(id_insurance,1);
-          new.id_insurance =:ins_id;
-   end
-
-  else           begin
-    ins_id = GEN_ID(id_insurance,1);
-  NEW.id_insurance = :ins_id;   end
-
+    insurance_id = gen_id(ID_INSURANCE, 1);
+    insert into insurance values (:insurance_id, 'auto insurance', 1000);
+    update insurance
+        set new.id_insurance = :insurance_id    ;
 
 
 end
